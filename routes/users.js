@@ -19,91 +19,97 @@ const validate = ({ login, password, firstName, lastName }) => login.length && t
   firstName.length && typeof firstName === 'string' &&
   lastName.length && typeof lastName === 'string';
 
-router.get('/api/v1/users', (req, res) => {
-  getUsers().then(data => {
-    res.status(200).json(data)
-  }, err => {
-    res.status(404).json(err);
-  });
-});
+router
+  .use((req, res, next) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
+  })
 
-router.get('/api/v1/users/:id', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-
-  if (id) {
-    getUser(id).then(data => {
+  .get('/users', (req, res) => {
+    getUsers().then(data => {
       res.status(200).json(data)
     }, err => {
       res.status(404).json(err);
     });
-  } else {
-    res.status(404).json({
-      message: 'Wrong User id',
-      success: false
-    });
-  }
-});
+  })
 
-router.post('/api/v1/users', (req, res) => {
-  let { firstName, lastName, login, password } = req.body;
-  const data = parse({ firstName, lastName, login, password });
+  .get('/users/:id', (req, res) => {
+    const id = parseInt(req.params.id, 10);
 
-  if (validate(data)) {
-    createUser(data).then(data => {
-      res.status(200).json(data);
-    }, err => {
-      res.status(404).json(err);
-    });
-  } else {
-    res.status(404).json({
-      message: 'Wrong input User data',
-      success: false
-    });
-  }
-});
+    if (id) {
+      getUser(id).then(data => {
+        res.status(200).json(data)
+      }, err => {
+        res.status(404).json(err);
+      });
+    } else {
+      res.status(404).json({
+        message: 'Wrong User id',
+        success: false
+      });
+    }
+  })
 
-router.put('/api/v1/users/:id', (req, res) => {
-  let { firstName, lastName, login, password } = req.body;
-  const data = parse({ firstName, lastName, login, password });
-  const id = parseInt(req.params.id, 10);
+  .post('/users', (req, res) => {
+    let { firstName, lastName, login, password } = req.body;
+    const data = parse({ firstName, lastName, login, password });
 
-  if (!id) {
-    res.status(404).json({
-      message: 'Wrong User id',
-      success: false
-    });
-  } else if (!validate(data)) {
-    res.status(404).json({
-      message: 'Wrong input User data',
-      success: false
-    });
-  } else {
-    updateUser({
-      ...{ id },
-      ...data
-    }).then(data => {
-      res.status(200).json(data);
-    }, err => {
-      res.status(404).json(err);
-    });
-  }
-});
+    if (validate(data)) {
+      createUser(data).then(data => {
+        res.status(200).json(data);
+      }, err => {
+        res.status(404).json(err);
+      });
+    } else {
+      res.status(404).json({
+        message: 'Wrong input User data',
+        success: false
+      });
+    }
+  })
 
-router.delete('/api/v1/users/:id', (req, res) => {
-  const id = parseInt(req.params.id, 10);
+  .put('/users/:id', (req, res) => {
+    let { firstName, lastName, login, password } = req.body;
+    const data = parse({ firstName, lastName, login, password });
+    const id = parseInt(req.params.id, 10);
 
-  if (id) {
-    deleteUser(id).then(data => {
-      res.status(200).json(data);
-    }, err => {
-      res.status(404).json(err);
-    });
-  } else {
-    res.status(404).json({
-      message: 'Wrong User id',
-      success: false
-    });
-  }
-});
+    if (!id) {
+      res.status(404).json({
+        message: 'Wrong User id',
+        success: false
+      });
+    } else if (!validate(data)) {
+      res.status(404).json({
+        message: 'Wrong input User data',
+        success: false
+      });
+    } else {
+      updateUser({
+        ...{ id },
+        ...data
+      }).then(data => {
+        res.status(200).json(data);
+      }, err => {
+        res.status(404).json(err);
+      });
+    }
+  })
+
+  .delete('/users/:id', (req, res) => {
+    const id = parseInt(req.params.id, 10);
+
+    if (id) {
+      deleteUser(id).then(data => {
+        res.status(200).json(data);
+      }, err => {
+        res.status(404).json(err);
+      });
+    } else {
+      res.status(404).json({
+        message: 'Wrong User id',
+        success: false
+      });
+    }
+  });
 
 module.exports = router;
